@@ -16,8 +16,8 @@
             <property name="visible">True</property>
             <child>
               <object class="GtkImage" id="image2">
-                <property name="width_request">100</property>
-                <property name="height_request">100</property>
+                <property name="width_request">150</property>
+                <property name="height_request">150</property>
                 <property name="visible">True</property>
                 <property name="pixbuf">canon2.png</property>
               </object>
@@ -28,8 +28,8 @@
             </child>
             <child>
               <object class="GtkImage" id="image1">
-                <property name="width_request">100</property>
-                <property name="height_request">100</property>
+                <property name="width_request">150</property>
+                <property name="height_request">150</property>
                 <property name="visible">True</property>
                 <property name="yalign">0.50999999046325684</property>
                 <property name="pixbuf">canon1.png</property>
