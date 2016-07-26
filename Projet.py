@@ -4,6 +4,7 @@ pygtk.require("2.0")
 import gtk
 from PIL import Image
 import numpy
+from random import randrange
 
 class HelloWorld:
 	def __init__(self):
@@ -31,6 +32,7 @@ class HelloWorld:
 		self.image1 = Image.open("canon1.png")
 		self.image2 = Image.open("canon2.png")
 		
+		self.pane = interface.get_object("pane")
 		
 		self.image1.rotate(self.cursor1.get_value()).save("canon1_rot.png")
 		self.gtk_image1.set_from_file("canon1_rot.png")
@@ -49,10 +51,10 @@ class HelloWorld:
 		gtk.main_quit()
 		
 	def on_button1_clicked(self,widget):
-		print("on_button1_clicked")
+		self.pane.move(self.gtk_image1,10,randrange(0 ,self.pane.get_allocation().height-self.gtk_image1.get_allocation().height))
 
 	def on_button2_clicked(self,widget):
-		print("on_button2_clicked")
+		self.pane.move(self.gtk_image2,self.pane.get_allocation().width-10-self.gtk_image2.get_allocation().width,randrange(0 ,self.pane.get_allocation().height-self.gtk_image2.get_allocation().height))
 	
 	def on_cursor1_change_value(self,widget,v1,v2):
 		self.image1.rotate(self.cursor1.get_value()).save("canon1_rot.png")

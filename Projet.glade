@@ -12,7 +12,7 @@
         <property name="orientation">vertical</property>
         <property name="homogeneous">True</property>
         <child>
-          <object class="GtkFixed" id="fixed1">
+          <object class="GtkFixed" id="pane">
             <property name="visible">True</property>
             <child>
               <object class="GtkImage" id="image2">
