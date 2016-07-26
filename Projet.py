@@ -47,6 +47,13 @@ class Main:
 		self.image1 = Image.open("canon1.png")
 		self.image2 = Image.open("canon2.png")
 		
+		self.popup = interface.get_object("popup")
+		self.popup.run()
+		
+		self.nameJoueur1 = interface.get_object("nameJoueur1")
+		self.nameJoueur2 = interface.get_object("nameJoueur2")
+		
+		self.buttonName = interface.get_object("buttonName")
 		
 		self.pane = interface.get_object("pane")
 		
@@ -80,17 +87,22 @@ class Main:
 		self.tir=False
 		
 		interface.connect_signals(self)
+		
+	def on_buttonName_clicked(self,widget):
+		print("click")
+		self.name1.set_text(self.nameJoueur1.get_text())
+		self.name2.set_text(self.nameJoueur2.get_text())
+		self.popup.destroy()
 
 	def on_mainWindow_destroy(self, widget):
 		gtk.main_quit()
 		
 	def move_balle1(self):
-		self.xb1=self.xb1+10
-		val = self.cursor1.get_value()+45
-		
-		self.yb1=self.yb1 - float(val)/60*10
-		
-		#sprint(float(val)/60)
+		inc = 10;
+		val = self.cursor1.get_value()+15
+		val = self.degToRad(val+90)
+		self.xb1=self.xb1+sin(val)*inc
+		self.yb1=self.yb1+cos(val)*inc
 		
 		posPane = self.pane.get_allocation()
 		posBalle = self.balle1.get_allocation()
@@ -100,13 +112,8 @@ class Main:
 		
 			self.xb1=self.xb1Sav
 			self.yb1=self.yb1Sav
-			nb=randrange(0 ,self.pane.get_allocation().height-self.gtk_image1.get_allocation().height)
-			diff=nb-self.posY1;
-			self.posY1=nb
-			self.pane.move(self.gtk_image1,self.posX1,self.posY1)
-			self.yb1=self.yb1+diff
-			self.pane.move(self.balle1,self.xb1,self.yb1)
-			self.rotateBalle1(-self.cursor1.get_value())
+			self.alea_move_canon1()
+			self.alea_move_canon2()
 			self.tir=False
 			return False
 			
@@ -121,38 +128,70 @@ class Main:
 			self.score1.set_text("Score = "+str(self.scoreJ1))
 			self.xb1=self.xb1Sav
 			self.yb1=self.yb1Sav
-			nb=randrange(0 ,self.pane.get_allocation().height-self.gtk_image1.get_allocation().height)
-			diff=nb-self.posY1;
-			self.posY1=nb
-			self.pane.move(self.gtk_image1,self.posX1,self.posY1)
-			self.yb1=self.yb1+diff
-			self.pane.move(self.balle1,self.xb1,self.yb1)
-			self.rotateBalle1(-self.cursor1.get_value())
+			self.alea_move_canon1()
+			self.alea_move_canon2()
 			self.tir=False
 			return False
 		
 		self.pane.move(self.balle1,self.xb1,self.yb1)
 		return True
 		
+	def move_balle2(self):
+		inc = 10;
+		val = self.cursor2.get_value()+15
+		val = self.degToRad(val+90)
+		self.xb2=self.xb2-sin(val)*inc
+		self.yb2=self.yb2+cos(val)*inc
 		
+		posPane = self.pane.get_allocation()
+		posBalle = self.balle2.get_allocation()
+		posBalle.x = self.xb2
+		posBalle.y = self.yb2
+		if(self.isOut(posBalle,posPane)):
+		
+			self.xb2=self.xb2Sav
+			self.yb2=self.yb2Sav
+			self.alea_move_canon1()
+			self.alea_move_canon2()
+			self.tir=False
+			return False
+			
+		posCanon =self.gtk_image1.get_allocation()
+		posCanon.x=posCanon.x+25
+		posCanon.y=posCanon.y+25
+		posCanon.height=posCanon.height-25
+		posCanon.width=posCanon.width-25
+		if(self.collision(posBalle,posCanon)):
+			
+			self.scoreJ2=self.scoreJ2+1
+			self.score2.set_text("Score = "+str(self.scoreJ2))
+			self.xb2=self.xb2Sav
+			self.yb2=self.yb2Sav
+			self.alea_move_canon1()
+			self.alea_move_canon2()
+			self.tir=False
+			return False
+		
+		self.pane.move(self.balle2,self.xb2,self.yb2)
+		return True
 		
 	def on_button1_clicked(self,widget):
 		if(not self.tir):
 			self.tir=True
 			self.xb1Sav=self.xb1
 			self.yb1Sav=self.yb1
-			#self.pane.move(self.balle1,self.xb1Rot,self.yb1Rot)
+			self.xb1=self.xb1Rot
+			self.yb1=self.yb1Rot
 			gobject.timeout_add(20,self.move_balle1)
 
 	def on_button2_clicked(self,widget):
-		nb=randrange(0 ,self.pane.get_allocation().height-self.gtk_image2.get_allocation().height)
-		diff=nb-self.posY2;
-		self.posY2=nb
-		self.posX2=self.pane.get_allocation().width-10-self.gtk_image2.get_allocation().width
-		self.pane.move(self.gtk_image2,self.posX2,self.posY2)
-		self.yb2=self.yb2+diff
-		self.pane.move(self.balle2,self.xb2,self.yb2)
-		self.rotateBalle2(self.cursor2.get_value())
+		if(not self.tir):
+			self.tir=True
+			self.xb2Sav=self.xb2
+			self.yb2Sav=self.yb2
+			self.xb2=self.xb2Rot
+			self.yb2=self.yb2Rot
+			gobject.timeout_add(20,self.move_balle2)
 		
 	def rotateBalle1(self,angle):
 		cosAngle = cos(self.degToRad(angle))
@@ -183,6 +222,24 @@ class Main:
 		self.gtk_image1.set_from_file("canon1_rot.png")
 		self.rotateBalle1(-self.cursor1.get_value())
 		
+	def alea_move_canon1(self):
+		nb=randrange(0 ,self.pane.get_allocation().height-self.gtk_image1.get_allocation().height)
+		diff=nb-self.posY1;
+		self.posY1=nb
+		self.pane.move(self.gtk_image1,self.posX1,self.posY1)
+		self.yb1=self.yb1+diff
+		self.pane.move(self.balle1,self.xb1,self.yb1)
+		self.rotateBalle1(-self.cursor1.get_value())
+	
+	def alea_move_canon2(self):
+		nb=randrange(0 ,self.pane.get_allocation().height-self.gtk_image2.get_allocation().height)
+		diff=nb-self.posY2;
+		self.posY2=nb
+		self.posX2=self.pane.get_allocation().width-10-self.gtk_image2.get_allocation().width
+		self.pane.move(self.gtk_image2,self.posX2,self.posY2)
+		self.yb2=self.yb2+diff
+		self.pane.move(self.balle2,self.xb2,self.yb2)
+		self.rotateBalle2(self.cursor2.get_value())
 	
 	def on_cursor2_change_value(self,widget,v1,v2):
 		if(self.tir):
@@ -203,7 +260,29 @@ class Main:
 		if((p1.x<p2.x) or (p1.x+p1.width>p2.x+p2.width) or (p1.y<p2.y) or (p1.y+p1.height>p2.y+p2.height)):
 			return True
 		return False
-
+		
+	def on_mainWindow_key_press_event(self, widget, event):
+		if(self.tir):
+			return
+		vitesse=2
+		if(event.keyval==113):
+			self.cursor1.set_value(self.cursor1.get_value()-vitesse)
+			self.on_cursor1_change_value(0,0,0)
+		elif(event.keyval==100):
+			self.cursor1.set_value(self.cursor1.get_value()+vitesse)
+			self.on_cursor1_change_value(0,0,0)
+		elif(event.keyval==65361):
+			self.cursor2.set_value(self.cursor2.get_value()-vitesse)
+			self.on_cursor2_change_value(0,0,0)
+		elif(event.keyval==65363):
+			self.cursor2.set_value(self.cursor2.get_value()+vitesse)
+			self.on_cursor2_change_value(0,0,0)
+		elif(event.keyval==122):
+			self.on_button1_clicked(0)
+		elif(event.keyval==65362):
+			self.on_button2_clicked(0)
+			
+	
 	
 if __name__ == "__main__":
 	Main()
